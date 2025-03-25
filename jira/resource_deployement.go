@@ -70,3 +70,30 @@ func resourceCreateDeployment(d *schema.ResourceData, m interface{}) error {
 
 	return nil
 }
+
+func resourceDeployment() *schema.Resource {
+	return &schema.Resource{
+		Create: resourceCreateDeployment,
+
+		Schema: map[string]*schema.Schema{
+			"environmentId": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			"environmentName": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			"environmentType": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			"issueKeys": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+		},
+	}
+}
+
