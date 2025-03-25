@@ -17,7 +17,8 @@ const jiraUserEmail =	"jenkinsadmin@vestmark.com"
 type JiraDeployment struct {
 	EnvironmentID string `json:"environmentId`
 	EnvironmentName string `json:"environmentName`
-	EnvironmentType string `json:environmentType`		
+	EnvironmentType string `json:environmentType`	
+	IssueKeys []string		`json:issueKeys`
 }
 
 func sendDeploymentToJira(deployment JiraDeployment) error {
@@ -52,6 +53,8 @@ func resourceCreateDeployment(d *schema.ResourceData, m interface{}) error {
 	environmentId := d.Get("environmentId").(string)
 	environmentName := d.Get("environmentName").(string)
 	environmentType := d.Get("environmentType").(string)
+	issueKeys       := d.Get("issueKeys").([]string)
+
 	
 	jiraDeployment := JiraDeployment{
 		EnvironmentID := environmentId
