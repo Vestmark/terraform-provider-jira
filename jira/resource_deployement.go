@@ -1,6 +1,6 @@
 package jira
 
-import {
+import (
 	"fmt"
 	"log"
 	"time"
@@ -8,7 +8,7 @@ import {
 	jira "github.com/andygrunwald/go-jira"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/pkg/errors"
-}
+)
 
 const jiraBaseURL   =  "https://vestmark.atlassian.net"
 const jiraAPIToken  =  "api_token_from_vault"
