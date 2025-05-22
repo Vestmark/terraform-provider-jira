@@ -2,12 +2,12 @@ package jira
 
 import (
 	"fmt"
-	"log"
-	"time"
-	"context"
-	jira "github.com/andygrunwald/go-jira"
+	//jira "github.com/andygrunwald/go-jira"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/pkg/errors"
+	//"github.com/pkg/errors"
+	"encoding/json"
+	"net/http"
+	"bytes"
 )
 
 const jiraBaseURL   =  "https://vestmark.atlassian.net"
@@ -36,7 +36,7 @@ func sendDeploymentToJira(deployment JiraDeployment) error {
 	req.Header.Set("Authorization", "Basic " + jiraAPIToken)
 	req.Header.Set("Content-Type", "application/json")
 
-	client := &http.client{}
+	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err !=nil{
 		return err
@@ -57,13 +57,14 @@ func resourceCreateDeployment(d *schema.ResourceData, m interface{}) error {
 
 	
 	jiraDeployment := JiraDeployment{
-		EnvironmentID := environmentId
-		EnvironmentName := environmentName
-		EnvironmentType := environmentType
+		EnvironmentID : environmentId,
+		EnvironmentName : environmentName,
+		EnvironmentType : environmentType,
+		IssueKeys : issueKeys,
 	}
 
  
-	err = sendDeploymentToJira(jiraDeployment)
+	err := sendDeploymentToJira(jiraDeployment)
 	if err != nil{
 		return fmt.Errorf("Failed to send the deployment: %d", err)
 	}
