@@ -2,7 +2,7 @@ package jira
 
 import (
 	"fmt"
-	//jira "github.com/andygrunwald/go-jira"
+	 jira "github.com/andygrunwald/go-jira"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	//"github.com/pkg/errors"
 	"encoding/json"
@@ -10,34 +10,30 @@ import (
 	"bytes"
 )
 
-const jiraBaseURL   =  "https://vestmark.atlassian.net"
-const jiraAPIToken  =  "api_token_from_vault"
-const jiraUserEmail =	"jenkinsadmin@vestmark.com"
-
 type JiraDeployment struct {
 	EnvironmentID string `json:"environmentId`
 	EnvironmentName string `json:"environmentName`
 	EnvironmentType string `json:environmentType`	
-	IssueKeys []string		`json:issueKeys`
+	IssueKeys []string	`json:issueKeys`
 }
 
-func sendDeploymentToJira(deployment JiraDeployment) error {
-	url := fmt.Sprintf("%s/rest/deployments/0.1/bulk", jiraBaseURL)
+func sendDeploymentToJira(client *jira.Client, deployment JiraDeployment) error {
+	url := fmt.Sprintf("/rest/deployments/0.1/bulk")
 	jsonData, err := json.Marshal([]JiraDeployment{deployment})
 	if err!= nil {
 		return err
 	}
 
-	req, err:= http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
+	req, err:= http.NewRequest("POST", client.BaseURL.String()+url, bytes.NewBuffer(jsonData))
 	if err != nil{
 		return err
 	}
 
-	req.Header.Set("Authorization", "Basic " + jiraAPIToken)
+	//req.Header.Set("Authorization", "Basic " + jiraAPIToken)
 	req.Header.Set("Content-Type", "application/json")
 
-	client := &http.Client{}
-	resp, err := client.Do(req)
+	//client := &http.Client{}
+	resp, err := client.Client.Do(req)
 	if err !=nil{
 		return err
 	} 
@@ -50,7 +46,8 @@ func sendDeploymentToJira(deployment JiraDeployment) error {
 }
 
 func resourceCreateDeployment(d *schema.ResourceData, m interface{}) error {
-	environmentId := d.Get("environmentId").(string)
+	config := m.(*Config)
+	environmentId 	:= d.Get("environmentId").(string)
 	environmentName := d.Get("environmentName").(string)
 	environmentType := d.Get("environmentType").(string)
 	issueKeys       := d.Get("issueKeys").([]string)
@@ -64,7 +61,7 @@ func resourceCreateDeployment(d *schema.ResourceData, m interface{}) error {
 	}
 
  
-	err := sendDeploymentToJira(jiraDeployment)
+	err := sendDeploymentToJira(config.jiraClient, jiraDeployment)
 	if err != nil{
 		return fmt.Errorf("Failed to send the deployment: %d", err)
 	}
