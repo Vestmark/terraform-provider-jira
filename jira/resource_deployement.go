@@ -24,7 +24,7 @@ func sendDeploymentToJira(client *jira.Client, deployment JiraDeployment) error 
 		return err
 	}
 
-	req, err:= http.NewRequest("POST", client.BaseURL.String()+url, bytes.NewBuffer(jsonData))
+	req, err:= http.NewRequest("POST", client.GetBaseURL().String()+url, bytes.NewBuffer(jsonData))
 	if err != nil{
 		return err
 	}
@@ -32,7 +32,7 @@ func sendDeploymentToJira(client *jira.Client, deployment JiraDeployment) error 
 	//req.Header.Set("Authorization", "Basic " + jiraAPIToken)
 	req.Header.Set("Content-Type", "application/json")
 
-	//client := &http.Client{}
+	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err !=nil{
 		return err
