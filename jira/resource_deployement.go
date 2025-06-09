@@ -33,7 +33,7 @@ func sendDeploymentToJira(client *jira.Client, deployment JiraDeployment) error 
 	req.Header.Set("Content-Type", "application/json")
 
 	//client := &http.Client{}
-	resp, err := client.Client.Do(req)
+	resp, err := client.Do(req)
 	if err !=nil{
 		return err
 	} 
