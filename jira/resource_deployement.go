@@ -72,14 +72,17 @@ func resourceDeployment() *schema.Resource {
 			"environmentId": {
 				Type:     schema.TypeString,
 				Required: true,
+				ForceNew: true,
 			},
 			"environmentName": {
 				Type:     schema.TypeString,
 				Required: true,
+				ForceNew: true,
 			},
 			"environmentType": {
 				Type:     schema.TypeString,
 				Required: true,
+				ForceNew: true,
 			},
 			"issueKeys": {
 				Type:     schema.TypeList,
