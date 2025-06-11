@@ -2,7 +2,7 @@ package jira
 
 import (
 	"fmt"
-	 jira "github.com/andygrunwald/go-jira"
+	jira "github.com/andygrunwald/go-jira"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	//"github.com/pkg/errors"
 	"encoding/json"
@@ -17,23 +17,21 @@ type JiraDeployment struct {
 	IssueKeys []string	`json:issueKeys`
 }
 
-func sendDeploymentToJira(client *jira.Client, deployment JiraDeployment) error {
-	url := fmt.Sprintf("/rest/deployments/0.1/bulk")
+func sendDeploymentToJira(jiraClient *jira.Client, deployment JiraDeployment) error {
+	const BaseURL = "https://vestmark.atlassian.net"
+	url := BaseURL + "/rest/deployments/0.1/bulk" 			//fmt.Sprintf("/rest/deployments/0.1/bulk")
 	jsonData, err := json.Marshal([]JiraDeployment{deployment})
 	if err!= nil {
 		return err
 	}
-
-	req, err:= http.NewRequest("POST", client.GetBaseURL().String()+url, bytes.NewBuffer(jsonData))
+	req, err:= jiraClient.NewRequest("POST", url, bytes.NewBuffer(jsonData))
 	if err != nil{
 		return err
 	}
-
 	//req.Header.Set("Authorization", "Basic " + jiraAPIToken)
 	req.Header.Set("Content-Type", "application/json")
-
-	client := &http.Client{}
-	resp, err := client.Do(req)
+	//client := &http.Client{}
+	resp, err := jiraClient.Do(req,nil)
 	if err !=nil{
 		return err
 	} 
@@ -52,15 +50,12 @@ func resourceCreateDeployment(d *schema.ResourceData, m interface{}) error {
 	environmentType := d.Get("environmentType").(string)
 	issueKeys       := d.Get("issueKeys").([]string)
 
-	
 	jiraDeployment := JiraDeployment{
 		EnvironmentID : environmentId,
 		EnvironmentName : environmentName,
 		EnvironmentType : environmentType,
 		IssueKeys : issueKeys,
 	}
-
- 
 	err := sendDeploymentToJira(config.jiraClient, jiraDeployment)
 	if err != nil{
 		return fmt.Errorf("Failed to send the deployment: %d", err)
