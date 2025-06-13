@@ -68,10 +68,15 @@ func resourceReadDeployment(d *schema.ResourceData, m interface{}) error {
 	return nil
 }
 
+func resourceDeleteDeployment(d *schema.ResourceData, m interface{}) error {
+	return nil
+}
+
 func resourceDeployment() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceCreateDeployment,
-		Read: resourceReadDeployment,
+		Read: 	resourceReadDeployment,
+		Delete: resourceDeleteDeployment,
 		Schema: map[string]*schema.Schema{
 			"environmentId": {
 				Type:     schema.TypeString,
