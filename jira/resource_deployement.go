@@ -11,10 +11,10 @@ import (
 )
 
 type JiraDeployment struct {
-	EnvironmentID string `json:"environmentId`
-	EnvironmentName string `json:"environmentName`
-	EnvironmentType string `json:environmentType`	
-	IssueKeys []string	`json:issueKeys`
+	EnvironmentID string `json:"environmentId"`
+	EnvironmentName string `json:"environmentName"`
+	EnvironmentType string `json:"environmentType"`	
+	IssueKeys []string	`json:"issueKeys"`
 }
 
 func sendDeploymentToJira(jiraClient *jira.Client, deployment JiraDeployment) error {
@@ -58,16 +58,20 @@ func resourceCreateDeployment(d *schema.ResourceData, m interface{}) error {
 	}
 	err := sendDeploymentToJira(config.jiraClient, jiraDeployment)
 	if err != nil{
-		return fmt.Errorf("Failed to send the deployment: %d", err)
+		return fmt.Errorf("failed to send the deployment: %d", err)
 	}
 
+	return nil
+}
+
+func resourceReadDeployment(d *schema.ResourceData, m interface{}) error {
 	return nil
 }
 
 func resourceDeployment() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceCreateDeployment,
-
+		Read: resourceReadDeployment,
 		Schema: map[string]*schema.Schema{
 			"environmentId": {
 				Type:     schema.TypeString,
