@@ -11,7 +11,7 @@ import (
 )
 
 type JiraDeployment struct {
-	EnvironmentID string `json:"environmentId"`
+	EnvironmentId string `json:"environmentId"`
 	EnvironmentName string `json:"environmentName"`
 	EnvironmentType string `json:"environmentType"`	
 	IssueKeys []string	`json:"issueKeys"`
@@ -24,6 +24,9 @@ func sendDeploymentToJira(jiraClient *jira.Client, deployment JiraDeployment) er
 	if err!= nil {
 		return err
 	}
+	fmt.Println("===DEBUG:PAYLOAD===")
+	fmt.Println(string(jsonData))
+	fmt.Println("======")
 	req, err:= jiraClient.NewRequest("POST", url, bytes.NewBuffer(jsonData))
 	if err != nil{
 		return err
@@ -35,7 +38,7 @@ func sendDeploymentToJira(jiraClient *jira.Client, deployment JiraDeployment) er
 	if err !=nil{
 		return err
 	} 
-	 
+	fmt.Println(resp.Body)
 	resp.Body.Close()
 	if resp.StatusCode != http.StatusOK{
 		return fmt.Errorf("failed to send deployment info to JIRA, status code: %d", resp.StatusCode)
@@ -51,16 +54,15 @@ func resourceCreateDeployment(d *schema.ResourceData, m interface{}) error {
 	issueKeys       := d.Get("issueKeys").([]string)
 
 	jiraDeployment := JiraDeployment{
-		EnvironmentID : environmentId,
+		EnvironmentId 	: environmentId,
 		EnvironmentName : environmentName,
 		EnvironmentType : environmentType,
-		IssueKeys : issueKeys,
+		IssueKeys 		: issueKeys,
 	}
 	err := sendDeploymentToJira(config.jiraClient, jiraDeployment)
 	if err != nil{
 		return fmt.Errorf("failed to send the deployment: %d", err)
 	}
-
 	return nil
 }
 
@@ -95,7 +97,7 @@ func resourceDeployment() *schema.Resource {
 			},
 			"issueKeys": {
 				Type:     schema.TypeList,
-				Computed: true,
+				Required: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 		},
