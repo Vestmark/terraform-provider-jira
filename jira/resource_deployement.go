@@ -98,6 +98,7 @@ func resourceDeployment() *schema.Resource {
 			"issueKeys": {
 				Type:     schema.TypeList,
 				Required: true,
+				ForceNew: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 		},
