@@ -55,7 +55,11 @@ func resourceCreateDeployment(d *schema.ResourceData, m interface{}) error {
 	environmentId 	:= d.Get("environment_id").(string)
 	environmentName := d.Get("environment_name").(string)
 	environmentType := d.Get("environment_type").(string)
-	issueKeys       := d.Get("issue_keys").([]string)
+	keys       		:= d.Get("issue_keys").([]interface{}) //To avoid runtime panic
+	issueKeys 		:= make([]string, len(keys))
+	for i, v := range keys {
+		issueKeys[i] = v.(string)
+	}
 
 	jiraDeployment := JiraDeployment{
 		EnvironmentId 	: environmentId,
