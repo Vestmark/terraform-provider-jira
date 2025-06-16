@@ -3,6 +3,8 @@ package jira
 import (
 	"fmt"
 	"log"
+	"os"
+
 	jira "github.com/andygrunwald/go-jira"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -81,21 +83,24 @@ func sendDeploymentToJira(jiraClient *jira.Client, deployment JiraDeployment) er
 	if err!= nil {
 		return err
 	}
+	log.SetOutput(os.Stderr)
+	log.Println(deployment)
 	log.Println("===DEBUG:PAYLOAD===")
 	log.Println(string(jsonData))
 	log.Println("======")
 	req, err:= jiraClient.NewRequest("POST", url, bytes.NewBuffer(jsonData))
 	if err != nil{
+		log.Println("Failed to send new request")
 		return err
 	}
-	//req.Header.Set("Authorization", "Basic " + jiraAPIToken)
+	//req.Header.Set("Authorization", "Beare" + jiraAPIToken)
 	req.Header.Set("Content-Type", "application/json")
 	//client := &http.Client{}
 	resp, err := jiraClient.Do(req,nil)
 	if err !=nil{
 		return err
 	} 
-	fmt.Println(resp.Body)
+	log.Println(resp.Body)
 	resp.Body.Close()
 	if resp.StatusCode != http.StatusOK{
 		return fmt.Errorf("failed to send deployment info to JIRA, status code: %d", resp.StatusCode)
