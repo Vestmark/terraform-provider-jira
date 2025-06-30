@@ -101,6 +101,7 @@ func resourceCreateDeployment(d *schema.ResourceData, m interface{}) error {
 		DisplayName				: displayName ,
 		URL						: url,
 		State					: state,
+		LastUpdated				: time.Now().UTC() ,
 		Pipeline				: struct{ID string "json:\"id\""; Name string "json:\"name\""}{
 			ID: "terraform-jira-deployment",
 			Name: "Terraform JIRA deployment",
