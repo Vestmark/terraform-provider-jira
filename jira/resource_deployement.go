@@ -6,7 +6,7 @@ import (
 	"os"
 	"time"
 
-	jira "github.com/andygrunwald/go-jira"
+	//jira "github.com/andygrunwald/go-jira"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	//"github.com/pkg/errors"

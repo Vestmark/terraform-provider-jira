@@ -1,7 +1,6 @@
 package jira
 
 import (
-	"go/token"
 	"log"
 	"net/http"
 	"sync"
