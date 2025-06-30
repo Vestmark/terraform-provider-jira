@@ -13,7 +13,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"net/http"
-	"net/url"
 )
 
 type JiraDeployment struct {
