@@ -22,18 +22,22 @@ type JiraDeployment struct {
 	URL						 string `json:"url"`
 	State					 string `json:"state"`	 
 	LastUpdated 			 time.Time `json:"lastUpdated"`	
-	
-	Pipeline struct{
-		ID 	 string `json:"id"`
-		Name string `json:"name"`
-	} `json:"pipeline"`
-	Environment struct {
-		EnvironmentId   string `json:"environmentId"`
-		EnvironmentName string `json:"environmentName"`
-		EnvironmentType string `json:"environmentType"`
-	} `json:"environment"`  		
+	Pipeline				 Pipeline
+	Environment				 Environment		
 	IssueKeys []string	`json:"issueKeys"`
 }
+
+type Pipeline struct{
+		ID 	 		string `json:"id"`
+		DisplayName string `json:"displayName"`
+		URL     	string `json:"url"`    
+
+} 
+type Environment struct {
+		ID   		string `json:"id"`
+		DisplayName string `json:"displayName"`
+		Type 		string `json:"type"`
+} 
 
 func resourceDeployment() *schema.Resource {
 	return &schema.Resource{
@@ -102,18 +106,15 @@ func resourceCreateDeployment(d *schema.ResourceData, m interface{}) error {
 		URL						: url,
 		State					: state,
 		LastUpdated				: time.Now().UTC() ,
-		Pipeline				: struct{ID string "json:\"id\""; Name string "json:\"name\""}{
-			ID: "terraform-jira-deployment",
-			Name: "Terraform JIRA deployment",
+		Pipeline				: Pipeline{
+			ID			: "terraform-jira-deployment",
+			DisplayName	: "Terraform JIRA deployment",
+			URL			: url,
 		} ,
-		Environment				: struct {
-			EnvironmentId   string `json:"environmentId"`
-			EnvironmentName string `json:"environmentName"`
-			EnvironmentType string `json:"environmentType"`
-		}{
-			EnvironmentId 	: environmentId,
-			EnvironmentName : environmentName,
-			EnvironmentType : environmentType,
+		Environment				: Environment{
+			ID	: environmentId,
+			DisplayName : environmentName,
+			Type : environmentType,
 		},
 
 		IssueKeys 		: issueKeys,
@@ -139,7 +140,7 @@ func sendDeploymentToJira(jiraClient *jira.Client, deployment JiraDeployment) er
 	log.Println("======")
 	req, err:= jiraClient.NewRequest("POST", url, bytes.NewBuffer(jsonData))
 	if err != nil{
-		log.Println("Failed to send new request")
+		log.Println("Failed to create new request",err)
 		return err
 	}
 	//req.Header.Set("Authorization", "Beare" + jiraAPIToken)
@@ -147,9 +148,11 @@ func sendDeploymentToJira(jiraClient *jira.Client, deployment JiraDeployment) er
 	//client := &http.Client{}
 	resp, err := jiraClient.Do(req,nil)
 	if err !=nil{
+		log.Println("Failed to post request",err, resp.StatusCode)
 		return err
 	} 
-	log.Println(resp.Body)
+	log.Println("RESPONSE:-",resp.Body)
+	log.Println("STATUS-CODE:-",resp.StatusCode)
 	resp.Body.Close()
 	if resp.StatusCode != http.StatusOK{
 		return fmt.Errorf("failed to send deployment info to JIRA, status code: %d", resp.StatusCode)
