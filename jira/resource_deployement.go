@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	jira "github.com/andygrunwald/go-jira"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -12,12 +13,26 @@ import (
 	"bytes"
 	"encoding/json"
 	"net/http"
+	"net/url"
 )
 
 type JiraDeployment struct {
-	EnvironmentId string `json:"environmentId"`
-	EnvironmentName string `json:"environmentName"`
-	EnvironmentType string `json:"environmentType"`	
+	DeploymentSequenceNumber int64 	`json:"deploymentSequenceNumber"`
+	UpdateSequenceNumber	 int64  `json:"updateSequenceNumber"`
+	DisplayName				 string `json:"displayName"`
+	URL						 string `json:"url"`
+	State					 string `json:"state"`	 
+	LastUpdated 			 time.Time `json:"lastUpdated"`	
+	
+	Pipeline struct{
+		ID 	 string `json:"id"`
+		Name string `json:"name"`
+	} `json:"pipeline"`
+	Environment struct {
+		EnvironmentId   string `json:"environmentId"`
+		EnvironmentName string `json:"environmentName"`
+		EnvironmentType string `json:"environmentType"`
+	} `json:"environment"`  		
 	IssueKeys []string	`json:"issueKeys"`
 }
 
@@ -48,12 +63,30 @@ func resourceDeployment() *schema.Resource {
 				ForceNew: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
+			"display_name":	{
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+			},
+			"state": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+			},
+			"url":	{
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+			},
 		},
 	}
 }
 
 func resourceCreateDeployment(d *schema.ResourceData, m interface{}) error {
 	config := m.(*Config)
+	displayName 	:= d.Get("display_name").(string)
+	url				:= d.Get("url").(string)
+	state 			:= d.Get("state").(string)
 	environmentId 	:= d.Get("environment_id").(string)
 	environmentName := d.Get("environment_name").(string)
 	environmentType := d.Get("environment_type").(string)
@@ -64,9 +97,25 @@ func resourceCreateDeployment(d *schema.ResourceData, m interface{}) error {
 	}
 
 	jiraDeployment := JiraDeployment{
-		EnvironmentId 	: environmentId,
-		EnvironmentName : environmentName,
-		EnvironmentType : environmentType,
+		DeploymentSequenceNumber: 1,
+		UpdateSequenceNumber	: 1,
+		DisplayName				: displayName ,
+		URL						: url,
+		State					: state,
+		Pipeline				: struct{ID string "json:\"id\""; Name string "json:\"name\""}{
+			ID: "terraform-jira-deployment",
+			Name: "Terraform JIRA deployment",
+		} ,
+		Environment				: struct {
+			EnvironmentId   string `json:"environmentId"`
+			EnvironmentName string `json:"environmentName"`
+			EnvironmentType string `json:"environmentType"`
+		}{
+			EnvironmentId 	: environmentId,
+			EnvironmentName : environmentName,
+			EnvironmentType : environmentType,
+		},
+
 		IssueKeys 		: issueKeys,
 	}
 	err := sendDeploymentToJira(config.jiraClient, jiraDeployment)
