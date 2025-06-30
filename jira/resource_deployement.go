@@ -148,7 +148,7 @@ func sendDeploymentToJira(config *Config, deployment JiraDeployment) error {
 	//client := &http.Client{}
 	resp, err := config.jiraClient.Do(req,nil)
 	if err !=nil{
-		log.Println("Failed to post request",err, resp.StatusCode)
+		log.Println("Failed to post request",err, resp.StatusCode, resp.Body)
 		return err
 	} 
 	log.Println("RESPONSE:-",resp.Body)
