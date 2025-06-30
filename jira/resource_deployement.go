@@ -119,14 +119,14 @@ func resourceCreateDeployment(d *schema.ResourceData, m interface{}) error {
 
 		IssueKeys 		: issueKeys,
 	}
-	err := sendDeploymentToJira(config.jiraClient, jiraDeployment)
+	err := sendDeploymentToJira(config, jiraDeployment)
 	if err != nil{
 		return fmt.Errorf("failed to send the deployment: %d", err)
 	}
 	return nil
 }
 
-func sendDeploymentToJira(jiraClient *jira.Client, deployment JiraDeployment) error {
+func sendDeploymentToJira(config *Config, deployment JiraDeployment) error {
 	const BaseURL = "https://vestmark.atlassian.net"
 	url := BaseURL + "/rest/deployments/0.1/bulk" 			//fmt.Sprintf("/rest/deployments/0.1/bulk")
 	jsonData, err := json.Marshal([]JiraDeployment{deployment})
@@ -138,15 +138,15 @@ func sendDeploymentToJira(jiraClient *jira.Client, deployment JiraDeployment) er
 	log.Println("===DEBUG:PAYLOAD===")
 	log.Println(string(jsonData))
 	log.Println("======")
-	req, err:= jiraClient.NewRequest("POST", url, bytes.NewBuffer(jsonData))
+	req, err:= config.jiraClient.NewRequest("POST", url, bytes.NewBuffer(jsonData))
 	if err != nil{
 		log.Println("Failed to create new request",err)
 		return err
 	}
-	//req.Header.Set("Authorization", "Beare" + jiraAPIToken)
+	req.Header.Set("Authorization", "Bearer" + config.token)
 	req.Header.Set("Content-Type", "application/json")
 	//client := &http.Client{}
-	resp, err := jiraClient.Do(req,nil)
+	resp, err := config.jiraClient.Do(req,nil)
 	if err !=nil{
 		log.Println("Failed to post request",err, resp.StatusCode)
 		return err

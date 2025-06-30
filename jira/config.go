@@ -1,6 +1,7 @@
 package jira
 
 import (
+	"go/token"
 	"log"
 	"net/http"
 	"sync"
@@ -13,6 +14,7 @@ import (
 type Config struct {
 	jiraClient *jira.Client
 	jiraLock   sync.Mutex
+	token	   string
 }
 
 func (c *Config) createAndAuthenticateClient(d *schema.ResourceData) error {
@@ -30,6 +32,7 @@ func (c *Config) createAndAuthenticateClient(d *schema.ResourceData) error {
 			Password: d.Get("password").(string),
 		}
 		httpClient = transport.Client()
+		c.token		= token.(string)
 	}
 
 	jiraClient, err := jira.NewClient(httpClient, d.Get("url").(string))
