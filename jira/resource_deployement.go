@@ -20,15 +20,15 @@ type DeploymentPayload struct{
 }
 
 type JiraDeployment struct {
-	DeploymentSequenceNumber int64 	`json:"deploymentSequenceNumber"`
-	UpdateSequenceNumber	 int64  `json:"updateSequenceNumber"`
-	DisplayName				 string `json:"displayName"`
-	URL						 string `json:"url"`
-	State					 string `json:"state"`	 
-	LastUpdated 			 time.Time `json:"lastUpdated"`	
-	Pipeline				 Pipeline
-	Environment				 Environment		
-	IssueKeys []string	`json:"issueKeys"`
+	DeploymentSequenceNumber int64 			`json:"deploymentSequenceNumber"`
+	UpdateSequenceNumber	 int64  		`json:"updateSequenceNumber"`
+	DisplayName				 string 		`json:"displayName"`
+	URL						 string 		`json:"url"`
+	State					 string 		`json:"state"`	 
+	LastUpdated 			 time.Time 		`json:"lastUpdated"`	
+	Pipeline				 Pipeline   	`json:"pipeline"`
+	Environment				 Environment	`json:"environment"`		
+	IssueKeys 				[]string		`json:"issueKeys"`
 }
 
 type Pipeline struct{
