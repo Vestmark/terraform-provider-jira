@@ -15,6 +15,10 @@ import (
 	"net/http"
 )
 
+type DeploymentPayload struct{
+	Deployments []JiraDeployment `json:"deployments"`
+}
+
 type JiraDeployment struct {
 	DeploymentSequenceNumber int64 	`json:"deploymentSequenceNumber"`
 	UpdateSequenceNumber	 int64  `json:"updateSequenceNumber"`
@@ -116,20 +120,24 @@ func resourceCreateDeployment(d *schema.ResourceData, m interface{}) error {
 			DisplayName : environmentName,
 			Type : environmentType,
 		},
-
 		IssueKeys 		: issueKeys,
 	}
-	err := sendDeploymentToJira(config, jiraDeployment)
+
+	deploymentPayload := DeploymentPayload{
+		Deployments: []JiraDeployment{jiraDeployment},
+	} 
+
+	err := sendDeploymentToJira(config, deploymentPayload)
 	if err != nil{
 		return fmt.Errorf("failed to send the deployment: %d", err)
 	}
 	return nil
 }
 
-func sendDeploymentToJira(config *Config, deployment JiraDeployment) error {
+func sendDeploymentToJira(config *Config, deployment DeploymentPayload) error {
 	const BaseURL = "https://vestmark.atlassian.net"
 	url := BaseURL + "/rest/deployments/0.1/bulk" 			//fmt.Sprintf("/rest/deployments/0.1/bulk")
-	jsonData, err := json.Marshal([]JiraDeployment{deployment})
+	jsonData, err := json.Marshal(deployment)
 	if err!= nil {
 		return err
 	}
